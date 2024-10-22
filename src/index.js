@@ -1,17 +1,24 @@
 import React from 'react';
-import ReactDOM from 'react-dom/client';
-import './index.css';
-import App from './App';
-import reportWebVitals from './reportWebVitals';
+import ReactDOM from 'react-dom/client'; // Importando da nova API
+import { BrowserRouter as Router } from 'react-router-dom';
+import MainRoutes from './routes'; // Importando as rotas
+import { UserProvider } from './context/UserContext'; // Importando o contexto do usuário
+import 'bulma/css/bulma.min.css';
 
-const root = ReactDOM.createRoot(document.getElementById('root'));
+
+// Pega o elemento root no DOM
+const rootElement = document.getElementById('root');
+
+// Cria um root a partir do elemento no DOM
+const root = ReactDOM.createRoot(rootElement);
+
+// Renderiza a aplicação usando o novo método
 root.render(
   <React.StrictMode>
-    <App />
+    <Router> {/* Envolvendo com Router para navegação */}
+      <UserProvider> {/* Envolvendo com UserProvider para gerenciar estado do usuário */}
+        <MainRoutes /> {/* Renderiza as rotas principais */}
+      </UserProvider>
+    </Router>
   </React.StrictMode>
 );
-
-// If you want to start measuring performance in your app, pass a function
-// to log results (for example: reportWebVitals(console.log))
-// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
-reportWebVitals();
