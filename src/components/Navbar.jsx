@@ -1,46 +1,43 @@
 import React, { useContext } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { UserContext } from '../context/UserContext';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faSignOutAlt, faHomeLg } from '@fortawesome/free-solid-svg-icons';
 
 const Navbar = () => {
-	const [token, setToken] = useContext(UserContext);
-	const location = useLocation();
+	const [token, setToken] = useContext(UserContext); // Estado do token
+	const location = useLocation(); // Detecta a rota atual
 
-	const cards = [
-		{ name: 'Relatório Geral', component: 'relatorio-geral' },
-		{ name: 'Relatório de Despesas', component: 'despesas' },
-		{ name: 'Relatório de Receitas', component: 'receitas' },
-		// { name: 'Relatório de Investimentos', component: 'investimentos' },
-		{ name: 'Cadastrar Categoria de Receita', component: 'categoria-receita' },
-		{ name: 'Cadastrar Categoria de Despesa', component: 'categoria-despesa' }
-		// { name: 'Cadastrar Categoria de Investimento', component: 'categoria-investimento' }
-	];
-
+	// Função de logout
 	const handleLogout = () => {
 		setToken(null);
-		localStorage.removeItem('awesomeTransactionsToken');
+		localStorage.removeItem('awesomeTransactionsToken'); // Remove o token do localStorage
 	};
 
 	return (
-		<nav className="navbar is-dark is-flex is-justify-content-center m-3">
-			{location.pathname === '/home' ? (
-				<Link to="/" className="navbar-item" onClick={handleLogout}>
-					Sair
+		<nav className="has-background-link-bold is-flex is-justify-content-center mt-0 py-1">
+			{location.pathname === '/home' && token ? (
+				<Link to="/" className="navbar-item has-text-white" onClick={handleLogout}>
+					<span className="icon">
+						<FontAwesomeIcon icon={faSignOutAlt} size="2x" />
+					</span>
+					<span className="ml-2 is-size-4 has-text-weight-semi-bold">Sair</span>
 				</Link>
 			) : (
-				<>
-					<Link to="/" className="navbar-item">
-						Home
-					</Link>
-					{cards.map(({ name, component }) => (
-						<Link to={`/${component}`} className="navbar-item" key={component}>
-							{name}
-						</Link>
-					))}
-					<Link to="/" className="navbar-item" onClick={handleLogout}>
-						Sair
-					</Link>
-				</>
+				<Link to="/home" className="navbar-item has-text-white">
+					<span className="icon">
+						<FontAwesomeIcon icon={faHomeLg} size="2x" />
+					</span>
+					<span className="ml-2 is-size-4 has-text-weight-semi-bold">Home</span>
+					{/* Espaçamento maior entre os spans */}
+					<span className="mr-5"></span>
+					<span>|</span>
+					<span className="mr-5"></span>
+					<span className="icon" onClick={handleLogout}>
+						<FontAwesomeIcon icon={faSignOutAlt} size="2x" />
+					</span>
+					<span className="ml-2 is-size-4 has-text-weight-semi-bold" onClick={handleLogout}>Sair</span>
+				</Link>
 			)}
 		</nav>
 	);

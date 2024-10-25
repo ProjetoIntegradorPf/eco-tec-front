@@ -16,11 +16,7 @@ const Login = () => {
 			// Fazendo a requisição POST com Axios
 			const response = await api.post('/token', {
 				username: email,
-				password: password,
-				grant_type: '', // Outros parâmetros que seu backend espera
-				scope: '',
-				client_id: '',
-				client_secret: ''
+				hashed_password: password
 			});
 
 			// Se a resposta for bem-sucedida
@@ -51,9 +47,9 @@ const Login = () => {
 	return (
 		<div className="column">
 			<form className="box" onSubmit={handleSubmit}>
-				<h1 className="title has-text-centered">Login</h1>
+				<h1 className="has-text-weight-bold has-text-centered is-size-3">Login</h1>
 				<div className="field">
-					<label className="label">E-mail</label>
+					<label className="label has-text-weight-bold">Usuário</label>
 					<div className="control">
 						<input
 							type="email"
@@ -65,8 +61,8 @@ const Login = () => {
 						/>
 					</div>
 				</div>
-				<div className="field">
-					<label className="label">Senha</label>
+				<div className="field mb-0">
+					<label className="label has-text-weight-bold">Senha</label>
 					<div className="control">
 						<input
 							type="password"
@@ -80,8 +76,8 @@ const Login = () => {
 				</div>
 				<ErrorMessage message={errorMessage} />
 				<br />
-				<button className="button is-primary centered" type="submit">
-					Login
+				<button className="button is-primary centered mt-0" type="submit">
+					Entrar
 				</button>
 			</form>
 		</div>

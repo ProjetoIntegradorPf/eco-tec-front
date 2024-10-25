@@ -1,38 +1,34 @@
-// src/App.js
 import React, { useContext, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { UserContext } from './context/UserContext';
 import Login from './components/Login';
-import Header from './components/Header';
 import BasePage from './components/BasePage';
 import './App.css'; // Caso você tenha estilos adicionais
+import CardMenu from './components/CardMenu';
 
-const App = () => {
-	const [token] = useContext(UserContext);
+const App = ({Component=CardMenu}) => {
+	const [token] = useContext(UserContext); // Estado de autenticação
 	const navigate = useNavigate();
 
 	useEffect(() => {
+		// Redireciona para /home se o usuário está autenticado e na página inicial
 		if (token && window.location.pathname === '/') {
 			navigate('/home');
 		}
-		if (!token && window.location.pathname.includes('/')) {
+		// Redireciona para login se o usuário não está autenticado
+		if (!token && window.location.pathname !== '/') {
 			navigate('/');
 		}
 	}, [token, navigate]);
 
 	return (
 		<>
-			{!token ? (
-				<div>
-					<Header />
-					<div className="columns is-centered is-vcentered is-flex is-justify-content-center mt-6">
-						<div className="column is-one-third">
-								<Login />
-						</div>
-					</div>
-				</div>
+			{token ? (
+        		<BasePage showLogin={false} Component={Component} /> 
 			) : (
-				<BasePage />
+				<div>
+					<BasePage showLogin /> {/* Quando não autenticado, renderiza o login dentro da BasePage */}
+				</div>
 			)}
 		</>
 	);
