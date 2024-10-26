@@ -18,12 +18,13 @@ function MainRoutes() {
 					<BasePage showLogin={false} Component={Donations} />
 				}
 			/>
-			{/* <Route
+			<Route
 				path="/vendas"
 				element={
 					<BasePage showLogin={false} Component={Sales} />
 				}
 			/>
+			{/*
 			<Route
 				path="/castracoes"
 				element={

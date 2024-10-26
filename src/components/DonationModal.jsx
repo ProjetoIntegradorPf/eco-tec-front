@@ -16,7 +16,7 @@ const DonationModal = ({ editOrCreate = 'create', isActive, handleClose, formDat
           });
           setFormData({
             donor_name: response.data.donor_name,
-            quantity: response.data.quantity,
+            quantity: parseFloat(response.data.quantity).toFixed(2).replace('.', ','),
             donation_date: response.data.donation_date // Ajuste de formato da data
           });
           setErrors({}); // Limpa os erros ao carregar os dados para edição
@@ -79,7 +79,7 @@ const DonationModal = ({ editOrCreate = 'create', isActive, handleClose, formDat
 
     const url = editOrCreate === 'create' ? '/donations' : `/donations/${donationId}`;
     const method = editOrCreate === 'create' ? 'POST' : 'PUT';
-    formData.quantity = parseFloat(formData.quantity);
+    formData.quantity = parseFloat(String(formData.quantity).replace(',', '.'));
 
     try {
       const response = await api({
@@ -136,7 +136,7 @@ const DonationModal = ({ editOrCreate = 'create', isActive, handleClose, formDat
                 <label className="label">Quantidade</label>
                 <input
                   className={`input ${errors.quantity ? 'is-danger' : ''}`}
-                  type="number"
+                  type="text"
                   name="quantity"
                   value={formData.quantity || ''}
                   onChange={handleChange}

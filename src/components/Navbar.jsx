@@ -1,15 +1,31 @@
-import React, { useContext } from 'react';
+import React, { useContext, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { UserContext } from '../context/UserContext';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSignOutAlt, faHomeLg } from '@fortawesome/free-solid-svg-icons';
+import api from '../api';
+import ErrorMessage from './ErrorMessage';
 
 const Navbar = () => {
 	const [token, setToken] = useContext(UserContext); // Estado do token
 	const location = useLocation(); // Detecta a rota atual
+	const [errorMessage, setErrorMessage] = useState(''); // Estado para mensagem de erro
+
+	const submitLogout = async () => {
+		try {
+			await api.post('/logout', {}, {
+				headers: {
+					Authorization: `Bearer ${token}`
+				}
+			});
+		} catch (error) {
+			setErrorMessage('Erro ao conectar com o servidor');
+		}
+	};
 
 	// Função de logout
 	const handleLogout = () => {
+		submitLogout();
 		setToken(null);
 		localStorage.removeItem('awesomeTransactionsToken'); // Remove o token do localStorage
 	};
@@ -39,6 +55,7 @@ const Navbar = () => {
 					<span className="ml-2 is-size-4 has-text-weight-semi-bold" onClick={handleLogout}>Sair</span>
 				</Link>
 			)}
+			<ErrorMessage message={errorMessage} />
 		</nav>
 	);
 };

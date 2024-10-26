@@ -10,7 +10,7 @@ const Donations = () => {
   const [donationId, setDonationId] = useState(null);
   const [formData, setFormData] = useState({
     donor_name: '',
-    quantity: '',
+    quantity: 0,
     donation_date: ''
   });
   const [donations, setDonations] = useState([]); // Estado para armazenar as doações
@@ -36,7 +36,7 @@ const Donations = () => {
         headers: {
           Authorization: `Bearer ${token}`
         }
-      });
+      })
       setDonations(response.data); // Armazena as doações no estado
     } catch (error) {
       console.error('Erro ao buscar as doações:', error);
@@ -52,7 +52,7 @@ const Donations = () => {
     setEditOrCreate('create');
     setFormData({
       donor_name: '',
-      quantity: '',
+      quantity: 0,
       donation_date: ''
     });
     setModalActive(true);
@@ -116,7 +116,7 @@ const Donations = () => {
             donations.map((donation) => (
               <tr key={donation.id}>
                 <td>{donation.donor_name}</td>
-                <td>{donation.quantity}</td>
+                <td>{parseFloat(donation.quantity).toFixed(2).replace('.', ',')}</td>
                 <td>{donation.donation_date.split('-').reverse().join('/')}</td>
                 <td>
                   <button className="button is-small is-warning mr-2" onClick={() => openModalForEdit(donation.id, donation)}>
