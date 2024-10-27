@@ -1,13 +1,11 @@
 import React, { useContext } from 'react';
 import Footer from './Footer';
 import Header from './Header';
-import Navbar from './Navbar';
-import Login from './Login'; // Importa o Login
-import { UserContext } from '../context/UserContext'; // Importa o contexto de autenticação
-import CardMenu from './CardMenu';
+import Login from './Login';
+import { UserContext } from '../context/UserContext';
 
 const BasePage = ({ showLogin, Component  }) => {
-    const [token] = useContext(UserContext); // Verifica se o usuário está logado
+    const [token] = useContext(UserContext);
 
     return (
         <div>

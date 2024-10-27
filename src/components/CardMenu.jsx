@@ -14,9 +14,6 @@ const CardMenu = () => {
             <Link to="/castracoes" className="button is-hovered is-outlined is-fullwidth mb-3 has-text-dark has-text-weight-bold is-size-4">
             Castrações
             </Link>
-            <Link to="/relatorios" className="button is-hovered is-outlined is-fullwidth mb-3 has-text-dark has-text-weight-bold is-size-4">
-            Relatórios
-            </Link>
             <Link to="/resumo-geral" className="button is-hovered is-outlined is-fullwidth mb-3 has-text-dark has-text-weight-bold is-size-4">
             Resumo Geral
             </Link>

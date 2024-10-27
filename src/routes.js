@@ -24,19 +24,20 @@ function MainRoutes() {
 					<BasePage showLogin={false} Component={Sales} />
 				}
 			/>
-			{/*
+			
 			<Route
 				path="/castracoes"
 				element={
 					<BasePage showLogin={false} Component={Castrations} />
 				}
 			/>
+			
 			<Route
 				path="/resumo-geral"
 				element={
 					<BasePage showLogin={false} Component={Resume} />
 				}
-			/> */}
+			/>
 			{/* <Route
 				path="/receitas"
 				element={

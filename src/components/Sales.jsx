@@ -135,7 +135,7 @@ const Sales = () => {
             ))
           ) : (
             <tr>
-              <td colSpan="4" className="has-text-centered">Nenhuma venda encontrada</td>
+              <td colSpan="5" className="has-text-centered">Nenhuma venda encontrada</td>
             </tr>
           )}
         </tbody>
