@@ -2,6 +2,7 @@ import React, { useContext, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { UserContext } from '../context/UserContext';
 import SaleModal from './SaleModal';
+import ErrorModal from './ErrorModal'; // Importa o ErrorModal
 import api from '../api';
 
 const Sales = () => {
@@ -14,7 +15,8 @@ const Sales = () => {
     quantity_sold: 0,
     total_value: 0
   });
-  const [sales, setSales] = useState([]); // Estado para armazenar as doações
+  const [sales, setSales] = useState([]); // Estado para armazenar as vendas
+  const [apiErrorMessage, setApiErrorMessage] = useState(''); // Estado para mensagens de erro da API
 
   const [token] = useContext(UserContext); 
   const navigate = useNavigate();
@@ -30,21 +32,22 @@ const Sales = () => {
     }
   }, [token, navigate]);
 
-  // Função para buscar as doações
+  // Função para buscar as vendas
   const fetchSales = async () => {
     try {
       const response = await api.get('/sales', {
         headers: {
           Authorization: `Bearer ${token}`
         }
-      })
-      setSales(response.data); // Armazena as doações no estado
+      });
+      setSales(response.data); // Armazena as vendas no estado
     } catch (error) {
-      console.error('Erro ao buscar as doações:', error);
+      console.error('Erro ao buscar as vendas:', error);
+      setApiErrorMessage(error.response?.data?.detail || 'Erro ao buscar as vendas.');
     }
   };
 
-  // Faz a requisição para buscar as doações ao carregar o componente
+  // Faz a requisição para buscar as vendas ao carregar o componente
   useEffect(() => {
     fetchSales(); // Chama a função de busca ao carregar o componente
   }, [token]);
@@ -52,10 +55,10 @@ const Sales = () => {
   const openModalForCreate = () => {
     setEditOrCreate('create');
     setFormData({
-        buyer_name: '',
-        sale_date: '',
-        quantity_sold: 0,
-        total_value: 0
+      buyer_name: '',
+      sale_date: '',
+      quantity_sold: 0,
+      total_value: 0
     });
     setModalActive(true);
   };
@@ -64,10 +67,10 @@ const Sales = () => {
     setEditOrCreate('edit');
     setSaleId(id);
     setFormData({
-        buyer_name: data.buyer_name,
-        sale_date: data.sale_date,
-        quantity_sold: data.sale_date,
-        total_value: data.total_value
+      buyer_name: data.buyer_name,
+      sale_date: data.sale_date,
+      quantity_sold: data.quantity_sold,
+      total_value: data.total_value
     });
     setModalActive(true);
   };
@@ -91,26 +94,31 @@ const Sales = () => {
       fetchSales(); // Atualiza a lista após a exclusão
     } catch (error) {
       console.error('Erro ao excluir a venda:', error);
+      setApiErrorMessage(error.response?.data?.detail || 'Erro ao excluir a venda.');
     }
   };
 
   // Função para ser chamada ao salvar no modal (criar ou editar)
   const handleSave = async () => {
     setModalActive(false); // Fecha o modal após salvar
-    fetchSales(); // Atualiza a lista de doações após salvar
+    fetchSales(); // Atualiza a lista de vendas após salvar
+  };
+
+  const closeErrorModal = () => {
+    setApiErrorMessage(''); // Limpa a mensagem de erro da API
   };
 
   return (
     <div className="box" style={{ width: '80%', margin: '0 auto', padding: '2rem' }}>
       <h1 className="title has-text-centered">Vendas Efetuadas</h1>
 
-      {/* Tabela de doações */}
+      {/* Tabela de vendas */}
       <table className="table is-bordered is-fullwidth mt-4">
         <thead>
           <tr>
             <th>Nome do comprador</th>
             <th>Data da venda</th>
-            <th>Quantidade Vendida</th>
+            <th>Quantidade Vendida em Kg</th>
             <th>Valor total arrecadado na venda</th>
             <th>Ações</th>
           </tr>
@@ -157,6 +165,11 @@ const Sales = () => {
         saleId={saleId}
         onSave={handleSave}
       />
+
+      {/* Error Modal */}
+      {apiErrorMessage && (
+        <ErrorModal message={apiErrorMessage} onClose={closeErrorModal} />
+      )}
     </div>
   );
 };

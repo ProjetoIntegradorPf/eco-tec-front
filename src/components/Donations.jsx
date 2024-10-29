@@ -2,6 +2,7 @@ import React, { useContext, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { UserContext } from '../context/UserContext';
 import DonationModal from './DonationModal';
+import ErrorModal from './ErrorModal'; // Importa o ErrorModal
 import api from '../api';
 
 const Donations = () => {
@@ -14,6 +15,7 @@ const Donations = () => {
     donation_date: ''
   });
   const [donations, setDonations] = useState([]); // Estado para armazenar as doações
+  const [apiErrorMessage, setApiErrorMessage] = useState(''); // Estado para mensagens de erro da API
 
   const [token] = useContext(UserContext); 
   const navigate = useNavigate();
@@ -36,10 +38,11 @@ const Donations = () => {
         headers: {
           Authorization: `Bearer ${token}`
         }
-      })
+      });
       setDonations(response.data); // Armazena as doações no estado
     } catch (error) {
       console.error('Erro ao buscar as doações:', error);
+      setApiErrorMessage(error.response?.data?.detail || 'Erro ao buscar as doações.');
     }
   };
 
@@ -88,6 +91,7 @@ const Donations = () => {
       fetchDonations(); // Atualiza a lista após a exclusão
     } catch (error) {
       console.error('Erro ao excluir a doação:', error);
+      setApiErrorMessage(error.response?.data?.detail || 'Erro ao excluir a doação.');
     }
   };
 
@@ -95,6 +99,10 @@ const Donations = () => {
   const handleSave = async () => {
     setModalActive(false); // Fecha o modal após salvar
     fetchDonations(); // Atualiza a lista de doações após salvar
+  };
+
+  const closeErrorModal = () => {
+    setApiErrorMessage(''); // Limpa a mensagem de erro da API
   };
 
   return (
@@ -106,7 +114,7 @@ const Donations = () => {
         <thead>
           <tr>
             <th>Doador</th>
-            <th>Quantidade</th>
+            <th>Quantidade em Kg</th>
             <th>Data</th>
             <th>Ações</th>
           </tr>
@@ -142,6 +150,7 @@ const Donations = () => {
         </button>
       </div>
 
+      {/* Modal de doação */}
       <DonationModal
         isActive={isModalActive}
         handleClose={closeModal}
@@ -152,6 +161,11 @@ const Donations = () => {
         donationId={donationId}
         onSave={handleSave}
       />
+
+      {/* Error Modal */}
+      {apiErrorMessage && (
+        <ErrorModal message={apiErrorMessage} onClose={closeErrorModal} />
+      )}
     </div>
   );
 };

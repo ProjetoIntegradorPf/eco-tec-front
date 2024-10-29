@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from 'react';
+import ErrorModal from './ErrorModal'; // Importa o ErrorModal
 import api from '../api';
 
 const CastrationModal = ({ editOrCreate = 'create', isActive, handleClose, formData, setFormData, token, castrationId, onSave }) => {
   const [errors, setErrors] = useState({}); // Estado para rastrear erros
+  const [apiErrorMessage, setApiErrorMessage] = useState(''); // Estado para mensagens de erro da API
 
   // Função para carregar a castração quando estamos no modo de edição
   useEffect(() => {
@@ -23,6 +25,7 @@ const CastrationModal = ({ editOrCreate = 'create', isActive, handleClose, formD
           setErrors({}); // Limpa os erros ao carregar os dados para edição
         } catch (error) {
           console.error('Erro ao carregar a castração:', error);
+          setApiErrorMessage(error.response?.data?.detail || 'Erro ao carregar a castração.');
         }
       }
     };
@@ -59,11 +62,11 @@ const CastrationModal = ({ editOrCreate = 'create', isActive, handleClose, formD
     }
 
     if (!formData.clinic_name_or_veterinary_name) {
-        newErrors.clinic_name_or_veterinary_name = 'O nome do Clínica ou do animal é obrigatório';
-      }
-      
+      newErrors.clinic_name_or_veterinary_name = 'O nome da clínica ou do veterinário é obrigatório';
+    }
+
     if (!formData.neutering_date) {
-        newErrors.neutering_date = 'A data da castração é obrigatória';
+      newErrors.neutering_date = 'A data da castração é obrigatória';
     }
 
     if (!formData.cost) {
@@ -101,12 +104,17 @@ const CastrationModal = ({ editOrCreate = 'create', isActive, handleClose, formD
       onSave(); // Chama a função onSave para atualizar a lista de castrações
     } catch (error) {
       console.error('Erro ao salvar a castração:', error);
+      setApiErrorMessage(error.response?.data?.detail || 'Erro ao salvar a castração.');
     }
   };
 
   const handleModalClose = () => {
     setErrors({}); // Limpa os erros ao fechar o modal
     handleClose(); // Chama a função original de fechar o modal
+  };
+
+  const closeErrorModal = () => {
+    setApiErrorMessage(''); // Limpa a mensagem de erro da API
   };
 
   return (
@@ -123,7 +131,7 @@ const CastrationModal = ({ editOrCreate = 'create', isActive, handleClose, formD
               <label className="label">Nome do animal</label>
               <div className="control">
                 <input
-                  className={`input ${errors.donor_name ? 'is-danger' : ''}`}
+                  className={`input ${errors.animal_name ? 'is-danger' : ''}`}
                   type="text"
                   name="animal_name"
                   value={formData.animal_name || ''}
@@ -151,22 +159,24 @@ const CastrationModal = ({ editOrCreate = 'create', isActive, handleClose, formD
               {errors.clinic_name_or_veterinary_name && <p className="help is-danger">{errors.clinic_name_or_veterinary_name}</p>}
             </div>
 
-            <div className="control">
-                <label className="label">Data</label>
+            <div className="field">
+              <label className="label">Data</label>
+              <div className="control">
                 <input
-                    className={`input ${errors.neutering_date ? 'is-danger' : ''}`}
-                    type="date"
-                    name="neutering_date"
-                    value={formData?.neutering_date} // Define a data de hoje por padrão
-                    onChange={handleChange}
-                    required
+                  className={`input ${errors.neutering_date ? 'is-danger' : ''}`}
+                  type="date"
+                  name="neutering_date"
+                  value={formData?.neutering_date}
+                  onChange={handleChange}
+                  required
                 />
                 {errors.neutering_date && <p className="help is-danger">{errors.neutering_date}</p>}
+              </div>
             </div>
 
-            <div className="field is-grouped">
+            <div className="field">
+              <label className="label">Custo</label>
               <div className="control">
-                <label className="label">Custo</label>
                 <input
                   className={`input ${errors.cost ? 'is-danger' : ''}`}
                   type="text"
@@ -182,12 +192,17 @@ const CastrationModal = ({ editOrCreate = 'create', isActive, handleClose, formD
           </form>
         </section>
         <footer className="modal-card-foot">
-          <button className="button is-primary mr-4" onClick={handleSubmit}>
+          <button className="button is-primary" onClick={handleSubmit}>
             {editOrCreate === 'edit' ? 'Salvar alterações' : 'Registrar'}
           </button>
           <button className="button is-danger" onClick={handleModalClose}>Cancelar</button>
         </footer>
       </div>
+
+      {/* Error Modal */}
+      {apiErrorMessage && (
+        <ErrorModal message={apiErrorMessage} onClose={closeErrorModal} />
+      )}
     </div>
   );
 };

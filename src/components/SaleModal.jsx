@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from 'react';
+import ErrorModal from './ErrorModal'; // Importa o ErrorModal
 import api from '../api';
 
 const SaleModal = ({ editOrCreate = 'create', isActive, handleClose, formData, setFormData, token, saleId, onSave }) => {
   const [errors, setErrors] = useState({}); // Estado para rastrear erros
+  const [apiErrorMessage, setApiErrorMessage] = useState(''); // Estado para mensagens de erro da API
 
   // Função para carregar a venda quando estamos no modo de edição
   useEffect(() => {
@@ -23,6 +25,7 @@ const SaleModal = ({ editOrCreate = 'create', isActive, handleClose, formData, s
           setErrors({}); // Limpa os erros ao carregar os dados para edição
         } catch (error) {
           console.error('Erro ao carregar a venda:', error);
+          setApiErrorMessage(error.response?.data?.detail || 'Erro ao carregar a venda.');
         }
       }
     };
@@ -66,7 +69,7 @@ const SaleModal = ({ editOrCreate = 'create', isActive, handleClose, formData, s
     }
 
     if (!formData.total_value) {
-        newErrors.total_value = 'O valor total é obrigatório';
+      newErrors.total_value = 'O valor total é obrigatório';
     }
 
     setErrors(newErrors);
@@ -97,17 +100,22 @@ const SaleModal = ({ editOrCreate = 'create', isActive, handleClose, formData, s
         data: formData
       });
 
-      console.log('Doação salva com sucesso:', response.data);
+      console.log('Venda salva com sucesso:', response.data);
       handleClose(); // Fecha o modal após salvar com sucesso
-      onSave(); // Chama a função onSave para atualizar a lista de doações
+      onSave(); // Chama a função onSave para atualizar a lista de vendas
     } catch (error) {
       console.error('Erro ao salvar a venda:', error);
+      setApiErrorMessage(error.response?.data?.detail || 'Erro ao salvar a venda.');
     }
   };
 
   const handleModalClose = () => {
     setErrors({}); // Limpa os erros ao fechar o modal
     handleClose(); // Chama a função original de fechar o modal
+  };
+
+  const closeErrorModal = () => {
+    setApiErrorMessage(''); // Limpa a mensagem de erro da API
   };
 
   return (
@@ -137,7 +145,7 @@ const SaleModal = ({ editOrCreate = 'create', isActive, handleClose, formData, s
             </div>
 
             <div className="field">
-              <label className="label">Quantidade Vendida</label>
+              <label className="label">Quantidade Vendida em Kg</label>
               <div className="control">
                 <input
                   className={`input ${errors.quantity_sold ? 'is-danger' : ''}`}
@@ -191,6 +199,11 @@ const SaleModal = ({ editOrCreate = 'create', isActive, handleClose, formData, s
           <button className="button is-danger" onClick={handleModalClose}>Cancelar</button>
         </footer>
       </div>
+
+      {/* Error Modal */}
+      {apiErrorMessage && (
+        <ErrorModal message={apiErrorMessage} onClose={closeErrorModal} />
+      )}
     </div>
   );
 };

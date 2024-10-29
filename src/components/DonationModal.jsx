@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from 'react';
+import ErrorModal from './ErrorModal'; // Importa o ErrorModal
 import api from '../api';
 
 const DonationModal = ({ editOrCreate = 'create', isActive, handleClose, formData, setFormData, token, donationId, onSave }) => {
   const [errors, setErrors] = useState({}); // Estado para rastrear erros
+  const [apiErrorMessage, setApiErrorMessage] = useState(''); // Estado para mensagens de erro da API
 
   // Função para carregar a doação quando estamos no modo de edição
   useEffect(() => {
@@ -22,6 +24,7 @@ const DonationModal = ({ editOrCreate = 'create', isActive, handleClose, formDat
           setErrors({}); // Limpa os erros ao carregar os dados para edição
         } catch (error) {
           console.error('Erro ao carregar a doação:', error);
+          setApiErrorMessage(error.response?.data?.detail || 'Erro ao carregar a doação.');
         }
       }
     };
@@ -97,12 +100,17 @@ const DonationModal = ({ editOrCreate = 'create', isActive, handleClose, formDat
       onSave(); // Chama a função onSave para atualizar a lista de doações
     } catch (error) {
       console.error('Erro ao salvar a doação:', error);
+      setApiErrorMessage(error.response?.data?.detail || 'Erro ao salvar a doação.');
     }
   };
 
   const handleModalClose = () => {
     setErrors({}); // Limpa os erros ao fechar o modal
     handleClose(); // Chama a função original de fechar o modal
+  };
+
+  const closeErrorModal = () => {
+    setApiErrorMessage(''); // Limpa a mensagem de erro da API
   };
 
   return (
@@ -133,7 +141,7 @@ const DonationModal = ({ editOrCreate = 'create', isActive, handleClose, formDat
 
             <div className="field is-grouped">
               <div className="control">
-                <label className="label">Quantidade</label>
+                <label className="label">Quantidade em Kg</label>
                 <input
                   className={`input ${errors.quantity ? 'is-danger' : ''}`}
                   type="text"
@@ -167,6 +175,11 @@ const DonationModal = ({ editOrCreate = 'create', isActive, handleClose, formDat
           <button className="button is-danger" onClick={handleModalClose}>Cancelar</button>
         </footer>
       </div>
+
+      {/* Error Modal */}
+      {apiErrorMessage && (
+        <ErrorModal message={apiErrorMessage} onClose={closeErrorModal} />
+      )}
     </div>
   );
 };

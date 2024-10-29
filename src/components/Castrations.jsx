@@ -2,6 +2,7 @@ import React, { useContext, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { UserContext } from '../context/UserContext';
 import CastrationModal from './CastrationModal';
+import ErrorModal from './ErrorModal'; // Importa o ErrorModal
 import api from '../api';
 
 const Castrations = () => {
@@ -15,6 +16,7 @@ const Castrations = () => {
     cost: 0.0
   });
   const [castrations, setCastrations] = useState([]); // Estado para armazenar as castrações
+  const [apiErrorMessage, setApiErrorMessage] = useState(''); // Estado para mensagens de erro da API
 
   const [token] = useContext(UserContext); 
   const navigate = useNavigate();
@@ -37,10 +39,11 @@ const Castrations = () => {
         headers: {
           Authorization: `Bearer ${token}`
         }
-      })
+      });
       setCastrations(response.data); // Armazena as castrações no estado
     } catch (error) {
       console.error('Erro ao buscar as castrações:', error);
+      setApiErrorMessage(error.response?.data?.detail || 'Erro ao buscar as castrações.');
     }
   };
 
@@ -52,10 +55,10 @@ const Castrations = () => {
   const openModalForCreate = () => {
     setEditOrCreate('create');
     setFormData({
-        animal_name: '',
-        clinic_name_or_veterinary_name: '',
-        neutering_date: '',
-        cost: 0.0
+      animal_name: '',
+      clinic_name_or_veterinary_name: '',
+      neutering_date: '',
+      cost: 0.0
     });
     setModalActive(true);
   };
@@ -64,10 +67,10 @@ const Castrations = () => {
     setEditOrCreate('edit');
     setCastrationId(id);
     setFormData({
-        animal_name: data.animal_name,
-        clinic_name_or_veterinary_name: data.clinic_name_or_veterinary_name,
-        neutering_date: data.neutering_date,
-        cost: data.cost
+      animal_name: data.animal_name,
+      clinic_name_or_veterinary_name: data.clinic_name_or_veterinary_name,
+      neutering_date: data.neutering_date,
+      cost: data.cost
     });
     setModalActive(true);
   };
@@ -91,6 +94,7 @@ const Castrations = () => {
       fetchCastrations(); // Atualiza a lista após a exclusão
     } catch (error) {
       console.error('Erro ao excluir a castração:', error);
+      setApiErrorMessage(error.response?.data?.detail || 'Erro ao excluir a castração.');
     }
   };
 
@@ -98,6 +102,10 @@ const Castrations = () => {
   const handleSave = async () => {
     setModalActive(false); // Fecha o modal após salvar
     fetchCastrations(); // Atualiza a lista de castrações após salvar
+  };
+
+  const closeErrorModal = () => {
+    setApiErrorMessage(''); // Limpa a mensagem de erro da API
   };
 
   return (
@@ -157,6 +165,11 @@ const Castrations = () => {
         castrationId={castrationId}
         onSave={handleSave}
       />
+
+      {/* Error Modal */}
+      {apiErrorMessage && (
+        <ErrorModal message={apiErrorMessage} onClose={closeErrorModal} />
+      )}
     </div>
   );
 };
