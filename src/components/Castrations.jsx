@@ -2,37 +2,38 @@ import React, { useContext, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { UserContext } from '../context/UserContext';
 import CastrationModal from './CastrationModal';
-import ErrorModal from './ErrorModal'; // Importa o ErrorModal
+import ConfirmModal from './ConfirmModal'; // Importa o ConfirmModal
+import ErrorModal from './ErrorModal';
 import api from '../api';
 
 const Castrations = () => {
   const [isModalActive, setModalActive] = useState(false);
+  const [isConfirmModalActive, setConfirmModalActive] = useState(false); // Estado para o ConfirmModal
   const [editOrCreate, setEditOrCreate] = useState('create');
   const [castrationId, setCastrationId] = useState(null);
+  const [castrationToDelete, setCastrationToDelete] = useState(null); // Armazena o ID para exclusão
   const [formData, setFormData] = useState({
     animal_name: '',
     clinic_name_or_veterinary_name: '',
     neutering_date: '',
     cost: 0.0
   });
-  const [castrations, setCastrations] = useState([]); // Estado para armazenar as castrações
-  const [apiErrorMessage, setApiErrorMessage] = useState(''); // Estado para mensagens de erro da API
+  const [castrations, setCastrations] = useState([]);
+  const [apiErrorMessage, setApiErrorMessage] = useState('');
 
-  const [token] = useContext(UserContext); 
+  const [token] = useContext(UserContext);
   const navigate = useNavigate();
 
   useEffect(() => {
-    document.title = "Castrações Efetuadas"; // Aqui você define o título da aba
+    document.title = "Castrações Efetuadas";
   }, []);
 
-  // Verifica se o usuário está logado
   useEffect(() => {
     if (!token) {
       navigate('/login');
     }
   }, [token, navigate]);
 
-  // Função para buscar as castrações
   const fetchCastrations = async () => {
     try {
       const response = await api.get('/castrations', {
@@ -40,16 +41,15 @@ const Castrations = () => {
           Authorization: `Bearer ${token}`
         }
       });
-      setCastrations(response.data); // Armazena as castrações no estado
+      setCastrations(response.data);
     } catch (error) {
       console.error('Erro ao buscar as castrações:', error);
       setApiErrorMessage(error.response?.data?.detail || 'Erro ao buscar as castrações.');
     }
   };
 
-  // Faz a requisição para buscar as castrações ao carregar o componente
   useEffect(() => {
-    fetchCastrations(); // Chama a função de busca ao carregar o componente
+    fetchCastrations();
   }, [token]);
 
   const openModalForCreate = () => {
@@ -79,33 +79,42 @@ const Castrations = () => {
     setModalActive(false);
   };
 
-  // Função para excluir uma castração
-  const deleteCastration = async (id) => {
-    const confirmDelete = window.confirm("Tem certeza que deseja excluir esta castração?");
-    if (!confirmDelete) return;
+  const openConfirmModal = (id) => {
+    setCastrationToDelete(id);
+    setConfirmModalActive(true);
+  };
+
+  const closeConfirmModal = () => {
+    setCastrationToDelete(null);
+    setConfirmModalActive(false);
+  };
+
+  const handleDelete = async () => {
+    if (!castrationToDelete) return;
 
     try {
-      await api.delete(`/castrations/${id}`, {
+      await api.delete(`/castrations/${castrationToDelete}`, {
         headers: {
           Authorization: `Bearer ${token}`
         }
       });
       console.log('Castração excluída com sucesso!');
-      fetchCastrations(); // Atualiza a lista após a exclusão
+      fetchCastrations();
     } catch (error) {
       console.error('Erro ao excluir a castração:', error);
       setApiErrorMessage(error.response?.data?.detail || 'Erro ao excluir a castração.');
+    } finally {
+      closeConfirmModal();
     }
   };
 
-  // Função para ser chamada ao salvar no modal (criar ou editar)
   const handleSave = async () => {
-    setModalActive(false); // Fecha o modal após salvar
-    fetchCastrations(); // Atualiza a lista de castrações após salvar
+    setModalActive(false);
+    fetchCastrations();
   };
 
   const closeErrorModal = () => {
-    setApiErrorMessage(''); // Limpa a mensagem de erro da API
+    setApiErrorMessage('');
   };
 
   return (
@@ -135,7 +144,7 @@ const Castrations = () => {
                   <button className="button is-small is-warning mr-2" onClick={() => openModalForEdit(castration.id, castration)}>
                     Editar
                   </button>
-                  <button className="button is-small is-danger" onClick={() => deleteCastration(castration.id)}>
+                  <button className="button is-small is-danger" onClick={() => openConfirmModal(castration.id)}>
                     Excluir
                   </button>
                 </td>
@@ -166,7 +175,13 @@ const Castrations = () => {
         onSave={handleSave}
       />
 
-      {/* Error Modal */}
+      <ConfirmModal
+        isActive={isConfirmModalActive}
+        message="Tem certeza que deseja excluir esta castração?"
+        onConfirm={handleDelete}
+        onCancel={closeConfirmModal}
+      />
+
       {apiErrorMessage && (
         <ErrorModal message={apiErrorMessage} onClose={closeErrorModal} />
       )}

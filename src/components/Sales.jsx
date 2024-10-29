@@ -2,37 +2,38 @@ import React, { useContext, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { UserContext } from '../context/UserContext';
 import SaleModal from './SaleModal';
-import ErrorModal from './ErrorModal'; // Importa o ErrorModal
+import ConfirmModal from './ConfirmModal';
+import ErrorModal from './ErrorModal';
 import api from '../api';
 
 const Sales = () => {
   const [isModalActive, setModalActive] = useState(false);
+  const [isConfirmModalActive, setConfirmModalActive] = useState(false);
   const [editOrCreate, setEditOrCreate] = useState('create');
   const [saleId, setSaleId] = useState(null);
+  const [saleToDelete, setSaleToDelete] = useState(null);
   const [formData, setFormData] = useState({
     buyer_name: '',
     sale_date: '',
     quantity_sold: 0,
     total_value: 0
   });
-  const [sales, setSales] = useState([]); // Estado para armazenar as vendas
-  const [apiErrorMessage, setApiErrorMessage] = useState(''); // Estado para mensagens de erro da API
+  const [sales, setSales] = useState([]);
+  const [apiErrorMessage, setApiErrorMessage] = useState('');
 
-  const [token] = useContext(UserContext); 
+  const [token] = useContext(UserContext);
   const navigate = useNavigate();
 
   useEffect(() => {
-    document.title = "Vendas Efetuadas"; // Aqui você define o título da aba
+    document.title = "Vendas Efetuadas";
   }, []);
 
-  // Verifica se o usuário está logado
   useEffect(() => {
     if (!token) {
       navigate('/login');
     }
   }, [token, navigate]);
 
-  // Função para buscar as vendas
   const fetchSales = async () => {
     try {
       const response = await api.get('/sales', {
@@ -40,16 +41,16 @@ const Sales = () => {
           Authorization: `Bearer ${token}`
         }
       });
-      setSales(response.data); // Armazena as vendas no estado
+      setSales(response.data);
     } catch (error) {
       console.error('Erro ao buscar as vendas:', error);
       setApiErrorMessage(error.response?.data?.detail || 'Erro ao buscar as vendas.');
     }
   };
 
-  // Faz a requisição para buscar as vendas ao carregar o componente
   useEffect(() => {
-    fetchSales(); // Chama a função de busca ao carregar o componente
+    // eslint-disable-next-line
+    fetchSales();
   }, [token]);
 
   const openModalForCreate = () => {
@@ -79,33 +80,42 @@ const Sales = () => {
     setModalActive(false);
   };
 
-  // Função para excluir uma venda
-  const deleteSale = async (id) => {
-    const confirmDelete = window.confirm("Tem certeza que deseja excluir esta venda?");
-    if (!confirmDelete) return;
+  const openConfirmModal = (id) => {
+    setSaleToDelete(id);
+    setConfirmModalActive(true);
+  };
+
+  const closeConfirmModal = () => {
+    setSaleToDelete(null);
+    setConfirmModalActive(false);
+  };
+
+  const handleDelete = async () => {
+    if (!saleToDelete) return;
 
     try {
-      await api.delete(`/sales/${id}`, {
+      await api.delete(`/sales/${saleToDelete}`, {
         headers: {
           Authorization: `Bearer ${token}`
         }
       });
       console.log('Venda excluída com sucesso!');
-      fetchSales(); // Atualiza a lista após a exclusão
+      fetchSales();
     } catch (error) {
       console.error('Erro ao excluir a venda:', error);
       setApiErrorMessage(error.response?.data?.detail || 'Erro ao excluir a venda.');
+    } finally {
+      closeConfirmModal();
     }
   };
 
-  // Função para ser chamada ao salvar no modal (criar ou editar)
   const handleSave = async () => {
-    setModalActive(false); // Fecha o modal após salvar
-    fetchSales(); // Atualiza a lista de vendas após salvar
+    setModalActive(false);
+    fetchSales();
   };
 
   const closeErrorModal = () => {
-    setApiErrorMessage(''); // Limpa a mensagem de erro da API
+    setApiErrorMessage('');
   };
 
   return (
@@ -135,7 +145,7 @@ const Sales = () => {
                   <button className="button is-small is-warning mr-2" onClick={() => openModalForEdit(sale.id, sale)}>
                     Editar
                   </button>
-                  <button className="button is-small is-danger" onClick={() => deleteSale(sale.id)}>
+                  <button className="button is-small is-danger" onClick={() => openConfirmModal(sale.id)}>
                     Excluir
                   </button>
                 </td>
@@ -166,7 +176,13 @@ const Sales = () => {
         onSave={handleSave}
       />
 
-      {/* Error Modal */}
+      <ConfirmModal
+        isActive={isConfirmModalActive}
+        message="Tem certeza que deseja excluir esta venda?"
+        onConfirm={handleDelete}
+        onCancel={closeConfirmModal}
+      />
+
       {apiErrorMessage && (
         <ErrorModal message={apiErrorMessage} onClose={closeErrorModal} />
       )}

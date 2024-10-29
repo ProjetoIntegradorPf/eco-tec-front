@@ -2,36 +2,37 @@ import React, { useContext, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { UserContext } from '../context/UserContext';
 import DonationModal from './DonationModal';
-import ErrorModal from './ErrorModal'; // Importa o ErrorModal
+import ConfirmModal from './ConfirmModal'; // Importa o ConfirmModal
+import ErrorModal from './ErrorModal';
 import api from '../api';
 
 const Donations = () => {
   const [isModalActive, setModalActive] = useState(false);
+  const [isConfirmModalActive, setConfirmModalActive] = useState(false); // Estado para o ConfirmModal
   const [editOrCreate, setEditOrCreate] = useState('create');
   const [donationId, setDonationId] = useState(null);
+  const [donationToDelete, setDonationToDelete] = useState(null); // Armazena o ID para exclusão
   const [formData, setFormData] = useState({
     donor_name: '',
     quantity: 0,
     donation_date: ''
   });
-  const [donations, setDonations] = useState([]); // Estado para armazenar as doações
-  const [apiErrorMessage, setApiErrorMessage] = useState(''); // Estado para mensagens de erro da API
+  const [donations, setDonations] = useState([]);
+  const [apiErrorMessage, setApiErrorMessage] = useState('');
 
-  const [token] = useContext(UserContext); 
+  const [token] = useContext(UserContext);
   const navigate = useNavigate();
 
   useEffect(() => {
-    document.title = "Doações Recebidas"; // Aqui você define o título da aba
+    document.title = "Doações Recebidas";
   }, []);
 
-  // Verifica se o usuário está logado
   useEffect(() => {
     if (!token) {
       navigate('/login');
     }
   }, [token, navigate]);
 
-  // Função para buscar as doações
   const fetchDonations = async () => {
     try {
       const response = await api.get('/donations', {
@@ -39,16 +40,15 @@ const Donations = () => {
           Authorization: `Bearer ${token}`
         }
       });
-      setDonations(response.data); // Armazena as doações no estado
+      setDonations(response.data);
     } catch (error) {
       console.error('Erro ao buscar as doações:', error);
       setApiErrorMessage(error.response?.data?.detail || 'Erro ao buscar as doações.');
     }
   };
 
-  // Faz a requisição para buscar as doações ao carregar o componente
   useEffect(() => {
-    fetchDonations(); // Chama a função de busca ao carregar o componente
+    fetchDonations();
   }, [token]);
 
   const openModalForCreate = () => {
@@ -76,33 +76,42 @@ const Donations = () => {
     setModalActive(false);
   };
 
-  // Função para excluir uma doação
-  const deleteDonation = async (id) => {
-    const confirmDelete = window.confirm("Tem certeza que deseja excluir esta doação?");
-    if (!confirmDelete) return;
+  const openConfirmModal = (id) => {
+    setDonationToDelete(id);
+    setConfirmModalActive(true);
+  };
+
+  const closeConfirmModal = () => {
+    setDonationToDelete(null);
+    setConfirmModalActive(false);
+  };
+
+  const handleDelete = async () => {
+    if (!donationToDelete) return;
 
     try {
-      await api.delete(`/donations/${id}`, {
+      await api.delete(`/donations/${donationToDelete}`, {
         headers: {
           Authorization: `Bearer ${token}`
         }
       });
       console.log('Doação excluída com sucesso!');
-      fetchDonations(); // Atualiza a lista após a exclusão
+      fetchDonations();
     } catch (error) {
       console.error('Erro ao excluir a doação:', error);
       setApiErrorMessage(error.response?.data?.detail || 'Erro ao excluir a doação.');
+    } finally {
+      closeConfirmModal();
     }
   };
 
-  // Função para ser chamada ao salvar no modal (criar ou editar)
   const handleSave = async () => {
-    setModalActive(false); // Fecha o modal após salvar
-    fetchDonations(); // Atualiza a lista de doações após salvar
+    setModalActive(false);
+    fetchDonations();
   };
 
   const closeErrorModal = () => {
-    setApiErrorMessage(''); // Limpa a mensagem de erro da API
+    setApiErrorMessage('');
   };
 
   return (
@@ -130,7 +139,7 @@ const Donations = () => {
                   <button className="button is-small is-warning mr-2" onClick={() => openModalForEdit(donation.id, donation)}>
                     Editar
                   </button>
-                  <button className="button is-small is-danger" onClick={() => deleteDonation(donation.id)}>
+                  <button className="button is-small is-danger" onClick={() => openConfirmModal(donation.id)}>
                     Excluir
                   </button>
                 </td>
@@ -160,6 +169,14 @@ const Donations = () => {
         token={token}
         donationId={donationId}
         onSave={handleSave}
+      />
+
+      {/* Modal de confirmação para exclusão */}
+      <ConfirmModal
+        isActive={isConfirmModalActive}
+        message="Tem certeza que deseja excluir esta doação?"
+        onConfirm={handleDelete}
+        onCancel={closeConfirmModal}
       />
 
       {/* Error Modal */}
