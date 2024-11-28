@@ -1,5 +1,7 @@
 import React, { createContext, useEffect, useState } from 'react';
 
+import api from '../api';
+
 export const UserContext = createContext();
 
 export const UserProvider = (props) => {
@@ -18,7 +20,11 @@ export const UserProvider = (props) => {
 			};
 
 			try {
-				const response = await fetch('/api/users/me', requestOptions);
+				const response = await api.get('/users/me', {
+					headers: {
+					  Authorization: `Bearer ${token}`
+					}
+				  });
 				if (!response.ok) {
 					setToken(null);
 				}
