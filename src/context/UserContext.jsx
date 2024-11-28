@@ -22,16 +22,25 @@ export const UserProvider = (props) => {
 			try {
 				const response = await api.get('/users/me', {
 					headers: {
-					  Authorization: `Bearer ${token}`
-					}
-				  });
-				if (!response.ok) {
-					setToken(null);
-				}
+						Authorization: `Bearer ${token}`,
+					},
+				});
 			} catch (error) {
-				console.error('Error fetching user:', error);
+				if (error.response) {
+					// O servidor respondeu com um status fora da faixa 2xx
+					console.error('HTTP error:', error.response.status);
+					console.error('Error details:', error.response.data);
+				} else if (error.request) {
+					// A requisição foi feita, mas nenhuma resposta foi recebida
+					console.error('No response received:', error.request);
+				} else {
+					// Outro erro ao configurar a requisição
+					console.error('Error setting up request:', error.message);
+				}
+			
 				setToken(null);
 			}
+			
 
 			localStorage.setItem('awesomeTransactionsToken', token || '');
 		};
