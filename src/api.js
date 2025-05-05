@@ -3,7 +3,7 @@ import axios from 'axios';
 
 // Criar instância do axios com a URL base da API
 const api = axios.create({
-  baseURL: 'https://eco-tec-api.onrender.com', // URL base da API
+  baseURL: 'https://eco-tec-api.onrender.com/api', // URL base da API
   headers: {
     'Content-Type': 'application/json', // Defina o formato das requisições
   },
