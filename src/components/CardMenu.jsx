@@ -3,12 +3,9 @@ import { Link } from "react-router-dom/dist";
 
 const CardMenu = () => {
   return (
-    <div
-      className="is-flex is-justify-content-center is-align-items-center"
-      style={{ height: "67vh" }}
-    >
+    <div className="is-flex is-justify-content-center is-align-items-center">
       <div
-        className="box has-text-centered"
+        className="box has-text-centered mb-5"
         style={{ width: "400px", margin: "0 auto" }}
       >
         <Link

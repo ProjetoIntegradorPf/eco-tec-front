@@ -1,11 +1,10 @@
-import React, { useEffect, useState, useContext } from 'react';
-import api from '../api';
-import { UserContext } from '../context/UserContext';
-import { useNavigate } from 'react-router-dom';
-
+import React, { useEffect, useState, useContext } from "react";
+import api from "../api";
+import { UserContext } from "../context/UserContext";
+import { useNavigate } from "react-router-dom";
 
 const Resume = () => {
-  const [token] = useContext(UserContext); 
+  const [token] = useContext(UserContext);
   const navigate = useNavigate();
   const [summaryData, setSummaryData] = useState({
     donations: 0,
@@ -13,42 +12,53 @@ const Resume = () => {
     total_caps_value_sold: 0,
     total_castration_value: 0,
     qtd_castrations: 0,
-    balance: 0
+    balance: 0,
   });
 
   useEffect(() => {
     if (!token) {
-      navigate('/login');
+      navigate("/login");
     }
   }, [token, navigate]);
 
   const fetchSummaryData = async () => {
     try {
-      const response = await api.get('/reports', {
+      const response = await api.get("/reports", {
         headers: {
-          Authorization: `Bearer ${token}`
-        }
+          Authorization: `Bearer ${token}`,
+        },
       });
 
-      const donations = response.data.reduce((acc, donationreduce) => acc + donationreduce.donation, 0);
-      const totalCaps = response.data.reduce((acc, tampinhaVndida) => acc + tampinhaVndida.sale_qtd_sold, 0)
-      const totalValueCaps = response.data.reduce((acc, tampinhaVndida) => acc + tampinhaVndida.sale_value, 0)
-      const totalValueCastration = response.data.reduce((acc, castracao) => acc + castracao.castration_value, 0)
+      const donations = response.data.reduce(
+        (acc, donationreduce) => acc + donationreduce.donation,
+        0
+      );
+      const totalCaps = response.data.reduce(
+        (acc, tampinhaVndida) => acc + tampinhaVndida.sale_qtd_sold,
+        0
+      );
+      const totalValueCaps = response.data.reduce(
+        (acc, tampinhaVndida) => acc + tampinhaVndida.sale_value,
+        0
+      );
+      const totalValueCastration = response.data.reduce(
+        (acc, castracao) => acc + castracao.castration_value,
+        0
+      );
       const qtdCastrations = response.data.reduce((count, item) => {
         return item.castration_id !== null ? count + 1 : count;
       }, 0);
-      
-      
+
       setSummaryData({
         donations: donations,
         total_caps_sold: totalCaps,
         total_caps_value_sold: totalValueCaps,
         total_castration_value: totalValueCastration,
         qtd_castrations: qtdCastrations,
-        balance: totalValueCaps - totalValueCastration
+        balance: totalValueCaps - totalValueCastration,
       });
     } catch (error) {
-      console.error('Erro ao buscar dados do resumo geral:', error);
+      console.error("Erro ao buscar dados do resumo geral:", error);
     }
   };
 
@@ -60,7 +70,7 @@ const Resume = () => {
     <div className="container">
       <h1 className="title has-text-centered">Resumo Geral</h1>
 
-      <div className="columns is-multiline mt-5">
+      <div className="columns is-multiline my-5">
         {/* Total de Doações de Tampinhas Recebidas */}
         <div className="column is-one-third">
           <div className="box has-text-centered">
@@ -96,7 +106,10 @@ const Resume = () => {
           <div className="box has-text-centered">
             <h2 className="subtitle">Valor Total Arrecadado</h2>
             <p className="is-size-1 has-text-weight-bold">
-              R$ {summaryData.total_caps_value_sold.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+              R${" "}
+              {summaryData.total_caps_value_sold.toLocaleString("pt-BR", {
+                minimumFractionDigits: 2,
+              })}
             </p>
           </div>
         </div>
@@ -106,7 +119,10 @@ const Resume = () => {
           <div className="box has-text-centered">
             <h2 className="subtitle">Valor Total Gasto</h2>
             <p className="is-size-1 has-text-weight-bold">
-              R$ {summaryData.total_castration_value.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+              R${" "}
+              {summaryData.total_castration_value.toLocaleString("pt-BR", {
+                minimumFractionDigits: 2,
+              })}
             </p>
           </div>
         </div>
@@ -116,7 +132,10 @@ const Resume = () => {
           <div className="box has-text-centered">
             <h2 className="subtitle">Saldo</h2>
             <p className="is-size-1 has-text-weight-bold">
-              R$ {summaryData.balance.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+              R${" "}
+              {summaryData.balance.toLocaleString("pt-BR", {
+                minimumFractionDigits: 2,
+              })}
             </p>
           </div>
         </div>

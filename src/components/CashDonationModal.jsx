@@ -170,14 +170,14 @@ const CashDonationsModal = ({
             </div>
             <div className="field is-grouped">
               <div className="control">
-                <label className="label">Valor em reais</label>
+                <label className="label">Valor</label>
                 <input
                   className={`input ${errors.quantity ? "is-danger" : ""}`}
                   type="text"
                   name="quantity"
                   value={formData.quantity || ""}
                   onChange={handleChange}
-                  placeholder="Quantidade"
+                  placeholder="Valor em reais"
                   required
                 />
                 {errors.quantity && (

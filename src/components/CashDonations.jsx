@@ -121,7 +121,7 @@ const CashDonations = () => {
 
   return (
     <div
-      className="box"
+      className="box mb-5"
       style={{ width: "80%", margin: "0 auto", padding: "2rem" }}
     >
       <h1 className="title has-text-centered">Doações Recebidas em dinheiro</h1>
