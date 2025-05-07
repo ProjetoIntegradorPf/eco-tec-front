@@ -27,6 +27,12 @@ const CardMenu = () => {
           Vendas
         </Link>
         <Link
+          to="/despesas"
+          className="button is-hovered is-outlined is-fullwidth mb-3 has-text-dark has-text-weight-bold is-size-4"
+        >
+          Despesas em Geral
+        </Link>
+        <Link
           to="/castracoes"
           className="button is-hovered is-outlined is-fullwidth mb-3 has-text-dark has-text-weight-bold is-size-4"
         >
