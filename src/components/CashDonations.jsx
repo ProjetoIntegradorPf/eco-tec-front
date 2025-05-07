@@ -1,7 +1,7 @@
 import React, { useContext, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { UserContext } from "../context/UserContext";
-import DonationModal from "./DonationModal";
+import CashDonationModal from "./CashDonationModal";
 import ConfirmModal from "./ConfirmModal"; // Importa o ConfirmModal
 import ErrorModal from "./ErrorModal";
 import api from "../api";
@@ -17,7 +17,7 @@ const CashDonations = () => {
     quantity: 0,
     donation_date: "",
   });
-  const [donations, setDonations] = useState([]);
+  const [cashdonations, setCashDonations] = useState([]);
   const [apiErrorMessage, setApiErrorMessage] = useState("");
 
   const [token] = useContext(UserContext);
@@ -35,12 +35,12 @@ const CashDonations = () => {
 
   const fetchDonations = async () => {
     try {
-      const response = await api.get("/donations", {
+      const response = await api.get("/cash-donations", {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
-      setDonations(response.data);
+      setCashDonations(response.data);
     } catch (error) {
       console.error("Erro ao buscar as doações:", error);
       setApiErrorMessage(
@@ -51,6 +51,7 @@ const CashDonations = () => {
 
   useEffect(() => {
     fetchDonations();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token]);
 
   const openModalForCreate = () => {
@@ -123,21 +124,21 @@ const CashDonations = () => {
       className="box"
       style={{ width: "80%", margin: "0 auto", padding: "2rem" }}
     >
-      <h1 className="title has-text-centered">Doações Recebidas</h1>
+      <h1 className="title has-text-centered">Doações Recebidas em dinheiro</h1>
 
       {/* Tabela de doações */}
       <table className="table is-bordered is-fullwidth mt-4">
         <thead>
           <tr>
             <th>Doador</th>
-            <th>Quantidade em Kg</th>
+            <th>Valor</th>
             <th>Data</th>
             <th>Ações</th>
           </tr>
         </thead>
         <tbody>
-          {donations.length > 0 ? (
-            donations.map((donation) => (
+          {cashdonations.length > 0 ? (
+            cashdonations.map((donation) => (
               <tr key={donation.id}>
                 <td>{donation.donor_name}</td>
                 <td>
@@ -177,7 +178,7 @@ const CashDonations = () => {
       </div>
 
       {/* Modal de doação */}
-      <DonationModal
+      <CashDonationModal
         isActive={isModalActive}
         handleClose={closeModal}
         editOrCreate={editOrCreate}
