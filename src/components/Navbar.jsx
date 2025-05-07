@@ -5,12 +5,13 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSignOutAlt, faHomeLg } from "@fortawesome/free-solid-svg-icons";
 import api from "../api";
 import ErrorMessage from "./ErrorMessage";
+import { useNavigate } from "react-router-dom";
 
 const Navbar = () => {
   const [token, setToken] = useContext(UserContext); // Estado do token
   const location = useLocation(); // Detecta a rota atual
   const [errorMessage, setErrorMessage] = useState(""); // Estado para mensagem de erro
-
+  const navigate = useNavigate();
   const submitLogout = async () => {
     try {
       await api.post(
@@ -32,6 +33,7 @@ const Navbar = () => {
     submitLogout();
     setToken(null);
     localStorage.removeItem("awesomeTransactionsToken"); // Remove o token do localStorage
+    navigate("/");
   };
 
   return (

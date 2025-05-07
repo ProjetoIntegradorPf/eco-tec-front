@@ -30,32 +30,37 @@ const Resume = () => {
       });
 
       const donations = response.data.reduce(
-        (acc, donationreduce) => acc + donationreduce.donation,
+        (acc, item) => acc + item.donation,
         0
       );
       const totalCaps = response.data.reduce(
-        (acc, tampinhaVndida) => acc + tampinhaVndida.sale_qtd_sold,
+        (acc, item) => acc + item.sale_qtd_sold,
         0
       );
       const totalValueCaps = response.data.reduce(
-        (acc, tampinhaVndida) => acc + tampinhaVndida.sale_value,
+        (acc, item) => acc + item.sale_value,
+        0
+      );
+      const totalCashDonations = response.data.reduce(
+        (acc, item) => acc + (item.cash_donation || 0),
         0
       );
       const totalValueCastration = response.data.reduce(
-        (acc, castracao) => acc + castracao.castration_value,
+        (acc, item) => acc + item.castration_value,
         0
       );
-      const qtdCastrations = response.data.reduce((count, item) => {
-        return item.castration_id !== null ? count + 1 : count;
-      }, 0);
+      const qtdCastrations = response.data.reduce(
+        (count, item) => (item.castration_id !== null ? count + 1 : count),
+        0
+      );
 
       setSummaryData({
-        donations: donations,
+        donations,
         total_caps_sold: totalCaps,
-        total_caps_value_sold: totalValueCaps,
+        total_caps_value_sold: totalValueCaps + totalCashDonations,
         total_castration_value: totalValueCastration,
         qtd_castrations: qtdCastrations,
-        balance: totalValueCaps - totalValueCastration,
+        balance: (totalValueCaps + totalCashDonations) - totalValueCastration,
       });
     } catch (error) {
       console.error("Erro ao buscar dados do resumo geral:", error);
