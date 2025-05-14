@@ -93,7 +93,7 @@ const CashDonations = () => {
     if (!donationToDelete) return;
 
     try {
-      await api.delete(`/donations/${donationToDelete}`, {
+      await api.delete(`/cash-donations${donationToDelete}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
